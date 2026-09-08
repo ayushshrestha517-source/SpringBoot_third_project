@@ -29,9 +29,6 @@ public record SignupRequestDTO(
         @NotBlank(message = "Gender is required")
         String gender,
 
-        @NotBlank(message = "Registration number is required")
-        String registrationNumber,
-
         @NotBlank(message = "Role name is required")
         String roleName
 ) {

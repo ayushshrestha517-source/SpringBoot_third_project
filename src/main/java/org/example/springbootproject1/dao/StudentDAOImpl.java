@@ -3,88 +3,59 @@ package org.example.springbootproject1.dao;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dto.request.StudentRequestDTO;
 import org.example.springbootproject1.dto.response.StudentResponseDTO;
+import org.example.springbootproject1.entity.Faculty;
+import org.example.springbootproject1.entity.Semester;
 import org.example.springbootproject1.entity.Student;
+import org.example.springbootproject1.entity.Users;
 import org.example.springbootproject1.exception.AlreadyExistsException;
 import org.example.springbootproject1.exception.ResourceNotFoundException;
 import org.example.springbootproject1.mapper.StudentMapper;
+import org.example.springbootproject1.repository.FacultyRepository;
+import org.example.springbootproject1.repository.SemesterRepository;
 import org.example.springbootproject1.repository.StudentRepository;
+import org.example.springbootproject1.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class StudentDAOImpl implements StudentDAO{
+    final UsersRepository usersRepository;
     final StudentRepository studentRepository;
     final StudentMapper studentMapper;
-    @Override
-    public StudentResponseDTO saveStudent(StudentRequestDTO studentRequestDTO) {
-        Student student1 = studentRepository.findByEmail(studentRequestDTO.email());
-        if(student1!=null){
-            throw new AlreadyExistsException("Email ALready Exists");
-        }
-
-        Student student = studentMapper.toEntity(studentRequestDTO);
-
-        Student savedStudent = studentRepository.save(student);
-        return studentMapper.toResponseDTO(savedStudent);
-    }
+    final FacultyRepository facultyRepository;
+    final SemesterRepository semesterRepository;
 
     @Override
-    public StudentResponseDTO findStudentById(Long id) {
-        Optional<Student> student = studentRepository.findById(id);
+    public StudentResponseDTO  createStudent(StudentRequestDTO dto) {
+        Users user = usersRepository.findById(dto.userId()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if(student.isEmpty()){
-            throw new ResourceNotFoundException("Student of entered Id record is not found");
-        }
-        return studentMapper.toResponseDTO(student.get());
-    }
+        boolean isStudent = user.getRoles().stream().anyMatch(role -> "ROLE_STUDENT".equals(role.getName()));
 
-    @Override
-    public List<StudentResponseDTO> findStudent() {
-        List<Student> studentList = studentRepository.findAll();
-
-        if(studentList.isEmpty()){
-            throw new ResourceNotFoundException("No student record is found");
+        if (!isStudent) {
+            throw new AlreadyExistsException("User does not have ROLE_STUDENT");
         }
 
-        return studentMapper.toResponseDTOList(studentList);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        Optional<Student> student = studentRepository.findById(id);
-
-        if(student.isEmpty()){
-            throw new ResourceNotFoundException("Student of entered Id record is not found");
+        if (studentRepository.existsByUserId(dto.userId())) {
+            throw new AlreadyExistsException("Student already exists for this user");
         }
 
-        studentRepository.deleteById(id);
-    }
+        Faculty faculty = facultyRepository.findById(dto.facultyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty not found"));
 
-    @Override
-    public StudentResponseDTO updateStudent(Long id,StudentRequestDTO studentRequestDTO) {
-        Optional<Student> student = studentRepository.findById(id);
 
-        if(student.isEmpty()){
-            throw new ResourceNotFoundException("Student of entered Id record is not found");
+        Semester semester = semesterRepository.findById(dto.semesterId()).orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
+        if (!semester.getFaculty().getId().equals(faculty.getId())) {
+            throw new IllegalArgumentException("Semester does not belong to selected faculty");
         }
 
-        Student existingStudent = student.get();
+        Student student = studentMapper.toEntity(dto);
+        student.setUser(user);
+        student.setFaculty(faculty);
+        student.setSemester(semester);
 
-        existingStudent.setName(studentRequestDTO.name());
-        existingStudent.setEmail(studentRequestDTO.email());
-        existingStudent.setPhone(studentRequestDTO.phone());
-        existingStudent.setCollegeName(studentRequestDTO.collegeName());
-        existingStudent.setFacultyName(studentRequestDTO.facultyName());
-        existingStudent.setSemester(studentRequestDTO.semester());
-
-        Student updatedStudent = studentRepository.save(existingStudent);
-
-        return studentMapper.toResponseDTO(updatedStudent);
+        return studentMapper.toResponseDTO(studentRepository.save(student));
     }
-
 
 }
 
