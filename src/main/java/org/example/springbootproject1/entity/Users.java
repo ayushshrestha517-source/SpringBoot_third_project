@@ -27,11 +27,13 @@ public class Users {
 
     private String gender;
 
-    private String registrationNumber;
-
     private String profileImage;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "users_id", foreignKey = @ForeignKey(name = "fk_users_roles_user")),
+            inverseJoinColumns = @JoinColumn(name = "roles_id", foreignKey = @ForeignKey(name = "fk_users_roles_role")),
+            uniqueConstraints = @UniqueConstraint(name = "uk_users_roles", columnNames = {"users_id", "roles_id"}))
     private Set<Role> roles;
 }
