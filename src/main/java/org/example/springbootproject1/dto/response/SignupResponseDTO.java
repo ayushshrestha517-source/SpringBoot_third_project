@@ -7,7 +7,6 @@ public record SignupResponseDTO(
         String username,
         String email,
         String gender,
-        String registrationNumber,
         String profileImage,
         String roleName
 ) {
