@@ -46,7 +46,7 @@ public class StudentDAOImpl implements StudentDAO{
 
         Semester semester = semesterRepository.findById(dto.semesterId()).orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
         if (!semester.getFaculty().getId().equals(faculty.getId())) {
-            throw new IllegalArgumentException("Semester does not belong to selected faculty");
+            throw new ResourceNotFoundException("Semester does not belong to selected faculty");
         }
 
         Student student = studentMapper.toEntity(dto);
