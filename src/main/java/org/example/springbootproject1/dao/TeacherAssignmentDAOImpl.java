@@ -43,7 +43,7 @@ public class TeacherAssignmentDAOImpl implements TeacherAssignmentDAO {
 
         // 4. Check semester belongs to faculty
         if (!semester.getFaculty().getId().equals(faculty.getId())) {
-            throw new IllegalArgumentException("Semester does not belong to selected faculty");
+            throw new ResourceNotFoundException("Semester does not belong to selected faculty");
         }
 
         // 5. Check subject
@@ -51,7 +51,7 @@ public class TeacherAssignmentDAOImpl implements TeacherAssignmentDAO {
 
         // 6. Check subject belongs to semester
         if (!subject.getSemester().getId().equals(semester.getId())) {
-            throw new IllegalArgumentException("Subject does not belong to selected semester");
+            throw new ResourceNotFoundException("Subject does not belong to selected semester");
         }
 
         // 7. Check teacher is not already assigned to this faculty + semester

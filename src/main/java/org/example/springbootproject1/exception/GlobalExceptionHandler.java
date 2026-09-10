@@ -98,18 +98,4 @@ public class GlobalExceptionHandler implements AuthenticationEntryPoint, AccessD
                 )
         );
     }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<?>> handleIllegalArgument(
-            IllegalArgumentException ex) {
-
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiResponse<>(
-                        null,
-                        HttpStatus.BAD_REQUEST.value(),
-                        ex.getMessage(),
-                        LocalDateTime.now()
-                ));
-    }
 }
