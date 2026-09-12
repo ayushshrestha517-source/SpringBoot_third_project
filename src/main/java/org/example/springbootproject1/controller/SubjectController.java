@@ -45,7 +45,7 @@ public class SubjectController {
     }
 
     @PatchMapping("/updatesubject/{id}")
-    public ResponseEntity<ApiResponse<SubjectResponseDTO>> updateSubject(@Valid @PathVariable Long id, @RequestBody SubjectRequestDTO dto){
+    public ResponseEntity<ApiResponse<SubjectResponseDTO>> updateSubject(@PathVariable Long id,@Valid @RequestBody SubjectRequestDTO dto){
         return ResponseEntity.ok(ApiResponse.success(subjectDAO.updateSubject(id,dto),"Subject updated successfully."));
     }
 }
