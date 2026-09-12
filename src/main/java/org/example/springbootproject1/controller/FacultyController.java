@@ -41,7 +41,7 @@ public class FacultyController {
     }
 
     @PatchMapping("/updatefaculty/{id}")
-    public ResponseEntity<ApiResponse<FacultyResponseDTO>> updateFaculty(@Valid @PathVariable Long id,@RequestBody FacultyRequestDTO facultyRequestDTO){
+    public ResponseEntity<ApiResponse<FacultyResponseDTO>> updateFaculty(@PathVariable Long id,@Valid @RequestBody FacultyRequestDTO facultyRequestDTO){
         return ResponseEntity.ok(ApiResponse.success(facultyDAO.updateFaculty(id,facultyRequestDTO),"Faculty updated successfully."));
     }
 

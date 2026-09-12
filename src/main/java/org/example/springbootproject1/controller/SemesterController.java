@@ -47,7 +47,7 @@ public class SemesterController {
     }
 
     @PatchMapping("/updatesemester/{id}")
-    public ResponseEntity<ApiResponse<SemesterResponseDTO>> updateSemester(@Valid @PathVariable Long id,@RequestBody SemesterRequestDTO dto){
+    public ResponseEntity<ApiResponse<SemesterResponseDTO>> updateSemester(@PathVariable Long id,@Valid @RequestBody SemesterRequestDTO dto){
         return ResponseEntity.ok(ApiResponse.success(semesterDAO.updateSemester(id,dto),"Semester updated successfully."));
     }
 
