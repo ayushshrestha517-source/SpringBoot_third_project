@@ -2,21 +2,17 @@ package org.example.springbootproject1.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dto.request.TeacherAssignmentRequestDTO;
+import org.example.springbootproject1.dto.response.StudentListResponseDTO;
+import org.example.springbootproject1.dto.response.TeacherAssignedClassResponseDTO;
 import org.example.springbootproject1.dto.response.TeacherAssignmentResponseDTO;
-import org.example.springbootproject1.entity.Faculty;
-import org.example.springbootproject1.entity.Semester;
-import org.example.springbootproject1.entity.Subject;
-import org.example.springbootproject1.entity.Teacher;
-import org.example.springbootproject1.entity.TeacherAssignment;
+import org.example.springbootproject1.entity.*;
 import org.example.springbootproject1.exception.AlreadyExistsException;
 import org.example.springbootproject1.exception.ResourceNotFoundException;
 import org.example.springbootproject1.mapper.TeacherAssignmentMapper;
-import org.example.springbootproject1.repository.FacultyRepository;
-import org.example.springbootproject1.repository.SemesterRepository;
-import org.example.springbootproject1.repository.SubjectRepository;
-import org.example.springbootproject1.repository.TeacherAssignmentRepository;
-import org.example.springbootproject1.repository.TeacherRepository;
+import org.example.springbootproject1.repository.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,53 +23,75 @@ public class TeacherAssignmentDAOImpl implements TeacherAssignmentDAO {
     private final FacultyRepository facultyRepository;
     private final SemesterRepository semesterRepository;
     private final SubjectRepository subjectRepository;
+    private final StudentRepository studentRepository;
     private final TeacherAssignmentMapper teacherAssignmentMapper;
 
     @Override
     public TeacherAssignmentResponseDTO createAssignment(TeacherAssignmentRequestDTO dto) {
 
-        // 1. Check teacher
         Teacher teacher = teacherRepository.findById(dto.teacherId()).orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
 
-        // 2. Check faculty
         Faculty faculty = facultyRepository.findById(dto.facultyId()).orElseThrow(() -> new ResourceNotFoundException("Faculty not found"));
-
-        // 3. Check semester
         Semester semester = semesterRepository.findById(dto.semesterId()).orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
 
-        // 4. Check semester belongs to faculty
         if (!semester.getFaculty().getId().equals(faculty.getId())) {
             throw new ResourceNotFoundException("Semester does not belong to selected faculty");
         }
 
-        // 5. Check subject
         Subject subject = subjectRepository.findById(dto.subjectId()).orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
-        // 6. Check subject belongs to semester
         if (!subject.getSemester().getId().equals(semester.getId())) {
             throw new ResourceNotFoundException("Subject does not belong to selected semester");
         }
 
-        // 7. Check teacher is not already assigned to this faculty + semester
         boolean alreadyAssigned = teacherAssignmentRepository.existsByTeacherIdAndFacultyIdAndSemesterId(dto.teacherId(), dto.facultyId(), dto.semesterId());
 
         if (alreadyAssigned) {
             throw new AlreadyExistsException("Teacher is already assigned to this faculty and semester");
         }
 
-        // 8. Convert DTO to entity
         TeacherAssignment assignment = teacherAssignmentMapper.toEntity(dto);
 
-        // 9. Set relationships
         assignment.setTeacher(teacher);
         assignment.setFaculty(faculty);
         assignment.setSemester(semester);
         assignment.setSubject(subject);
 
-        // 10. Save
         TeacherAssignment savedAssignment = teacherAssignmentRepository.save(assignment);
-
-        // 11. Return response DTO
         return teacherAssignmentMapper.toResponseDTO(savedAssignment);
+    }
+
+    @Override
+    public List<TeacherAssignedClassResponseDTO> getAssignedClasses(Long teacherId) {
+        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        List<TeacherAssignment> assignedClasses = teacherAssignmentRepository.findAllByTeacher_Id(teacherId);
+
+        return assignedClasses.stream().map(assignment->new TeacherAssignedClassResponseDTO(
+                assignment.getId(),
+                assignment.getFaculty().getId(),
+                assignment.getFaculty().getFaculty(),
+                assignment.getSemester().getId(),
+                assignment.getSemester().getSemester(),
+                assignment.getSubject().getId(),
+                assignment.getSubject().getSubject(),
+                assignment.getSubject().getCourseCode()
+        )).toList();
+    }
+
+    @Override
+    public List<StudentListResponseDTO> getStudents(Long facultyId, Long semesterId) {
+        Faculty faculty = facultyRepository.findById(facultyId).orElseThrow(() -> new ResourceNotFoundException("Faculty not found"));
+        Semester semester = semesterRepository.findById(semesterId).orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
+
+        if (!semester.getFaculty().getId().equals(faculty.getId())) {
+            throw new ResourceNotFoundException("Semester does not belong to selected faculty");
+        }
+
+        List<Student> studentList = studentRepository.findByFaculty_IdAndSemester_Id(facultyId, semesterId);
+
+        return studentList.stream().map(student -> new StudentListResponseDTO(
+                student.getId(),
+                student.getUser().getFirstName()
+        )).toList();
     }
 }
