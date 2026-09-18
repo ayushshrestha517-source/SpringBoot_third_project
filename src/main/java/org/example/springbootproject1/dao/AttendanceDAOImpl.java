@@ -2,6 +2,7 @@ package org.example.springbootproject1.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dto.request.AttendanceRequestDTO;
+import org.example.springbootproject1.dto.response.AttendanceReportResponseDTO;
 import org.example.springbootproject1.dto.response.AttendanceResponseDTO;
 import org.example.springbootproject1.entity.Attendance;
 import org.example.springbootproject1.entity.AttendanceDetail;
@@ -119,4 +120,23 @@ public class AttendanceDAOImpl implements AttendanceDAO {
 
         return attendanceMapper.toResponseDTO(savedAttendance);
     }
+
+    @Override
+    public AttendanceReportResponseDTO getAttendanceReport(Long facultyId, Long semesterId, Long studentId) {
+        Faculty faculty = facultyRepository.findById(facultyId).orElseThrow(() -> new ResourceNotFoundException("Faculty not found"));
+
+        Semester semester = semesterRepository.findById(semesterId).orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
+
+        if (!semester.getFaculty().getId().equals(faculty.getId())) {
+            throw new ResourceNotFoundException("Semester does not belong to selected faculty");
+        }
+            if (!studentRepository.existsById(studentId)) {
+                throw new ResourceNotFoundException("Student with id " + studentId + " not found");
+            }
+
+            return attendanceRepository.getAttendanceReport(studentId);
+        }
+
+
+
 }

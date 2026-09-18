@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dao.AttendanceDAO;
 import org.example.springbootproject1.dto.request.AttendanceRequestDTO;
 import org.example.springbootproject1.dto.response.ApiResponse;
+import org.example.springbootproject1.dto.response.AttendanceReportResponseDTO;
 import org.example.springbootproject1.dto.response.AttendanceResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,5 +21,10 @@ public class AttendanceController {
     @PostMapping("/saveattendance")
     public ResponseEntity<ApiResponse<AttendanceResponseDTO>> saveAttendance(@Valid @RequestBody AttendanceRequestDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(attendanceDAO.saveOrUpdateAttendance(dto), "Attendance saved/updated successfully."));
+    }
+
+    @GetMapping("/getattendance/{studentId}")
+    public ResponseEntity<ApiResponse<AttendanceReportResponseDTO>> saveAttendance(@RequestParam Long facultyId, @RequestParam Long semesterId,@PathVariable Long studentId) {
+        return ResponseEntity.ok(ApiResponse.success(attendanceDAO.getAttendanceReport(facultyId,semesterId,studentId), "Attendance retrieved successfully."));
     }
 }
