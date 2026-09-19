@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssignment, Long> {
     boolean existsByTeacherIdAndFacultyIdAndSemesterId(Long teacherId, Long facultyId, Long semesterId);
+    boolean existsByTeacherIdAndFacultyIdAndSemesterIdAndSubjectId(Long teacherId, Long facultyId, Long semesterId, Long subjectId);
     List<TeacherAssignment> findAllByTeacher_Id(Long teacherId);
 }
