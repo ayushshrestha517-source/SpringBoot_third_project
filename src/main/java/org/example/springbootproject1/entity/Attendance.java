@@ -13,8 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-        name = "attendances",
+@Table(name = "attendances",
         uniqueConstraints = {@UniqueConstraint(
                 name = "uk_attendance",
                 columnNames = { "teacher_id",
