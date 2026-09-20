@@ -2,10 +2,12 @@ package org.example.springbootproject1.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dto.request.AssignmentSubmissionRequestDTO;
+import org.example.springbootproject1.dto.request.AssignmentSubmissionUpdateRequestDTO;
 import org.example.springbootproject1.dto.response.AssignmentSubmissionResponseDTO;
 import org.example.springbootproject1.entity.Assignment;
 import org.example.springbootproject1.entity.AssignmentSubmission;
 import org.example.springbootproject1.entity.Student;
+import org.example.springbootproject1.exception.BadRequestException;
 import org.example.springbootproject1.exception.ResourceNotFoundException;
 import org.example.springbootproject1.mapper.AssignmentSubmissionMapper;
 import org.example.springbootproject1.repository.AssignmentRepository;
@@ -14,6 +16,7 @@ import org.example.springbootproject1.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -90,5 +93,20 @@ public class AssignmentSubmissionDAOImpl implements AssignmentSubmissionDAO {
                 .stream()
                 .map(assignmentSubmissionMapper::toResponseDTO)
                 .toList();
+    }
+
+    @Override
+    public AssignmentSubmissionResponseDTO updateSubmission(Long id, AssignmentSubmissionUpdateRequestDTO dto) {
+        AssignmentSubmission submission = assignmentSubmissionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Submission of id " + id + " not found"));
+        Assignment assignment = submission.getAssignment();
+
+        if (LocalDate.now().isAfter(assignment.getDueDate())) {
+            throw new BadRequestException("Assignment submission deadline has passed");
+        }
+
+        submission.setFileUrl(dto.fileUrl());
+        AssignmentSubmission updatedSubmission = assignmentSubmissionRepository.save(submission);
+
+        return assignmentSubmissionMapper.toResponseDTO(updatedSubmission);
     }
 }

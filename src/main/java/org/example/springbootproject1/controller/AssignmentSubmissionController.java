@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootproject1.dao.AssignmentSubmissionDAO;
 import org.example.springbootproject1.dto.request.AssignmentSubmissionRequestDTO;
+import org.example.springbootproject1.dto.request.AssignmentSubmissionUpdateRequestDTO;
 import org.example.springbootproject1.dto.response.ApiResponse;
 import org.example.springbootproject1.dto.response.AssignmentSubmissionResponseDTO;
 import org.springframework.http.ResponseEntity;
@@ -41,5 +42,12 @@ public class AssignmentSubmissionController {
     @GetMapping("/assignment/{assignmentId}")
     public ResponseEntity<ApiResponse<List<AssignmentSubmissionResponseDTO>>> getAssignmentSubmissions(@PathVariable Long assignmentId) {
         return ResponseEntity.ok(ApiResponse.success(assignmentSubmissionDAO.getAssignmentSubmissions(assignmentId), "Assignment submissions successfully fetched"));
+    }
+
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<AssignmentSubmissionResponseDTO>> updateSubmission(@PathVariable Long id, @Valid @RequestBody AssignmentSubmissionUpdateRequestDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(assignmentSubmissionDAO.updateSubmission(id, dto), "Assignment submission successfully updated"));
     }
 }
