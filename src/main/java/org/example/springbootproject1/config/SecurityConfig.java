@@ -34,7 +34,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex->ex.authenticationEntryPoint(globalExceptionHandler).accessDeniedHandler(globalExceptionHandler))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/heath").permitAll()
+                        .requestMatchers("/api/auth/**", "/heath","/sendotp","/verifyotp").permitAll()
 
                         .anyRequest().authenticated()
                 ).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
