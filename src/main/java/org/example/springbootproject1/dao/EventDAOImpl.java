@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EventDAOImpl implements EventDAO{
+public class EventDAOImpl implements EventDAO {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
