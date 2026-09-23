@@ -57,13 +57,10 @@ public class SubjectDAOImpl implements SubjectDAO{
             if (!semesterRepository.existsById(semesterId)) {
                 throw new ResourceNotFoundException("Semester with id " + semesterId + " not found" );
             }
-
         List<Subject> subjects = subjectRepository.findBySemesterId(semesterId);
-
         if (subjects.isEmpty()) {
             throw new ResourceNotFoundException("No subjects found for Semester with id " + semesterId);
         }
-
             return subjectRepository.findBySemesterId(semesterId)
                     .stream()
                     .map(subjectMapper::toResponseDTO)

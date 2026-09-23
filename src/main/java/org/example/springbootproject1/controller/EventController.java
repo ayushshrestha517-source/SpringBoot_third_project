@@ -6,7 +6,6 @@ import org.example.springbootproject1.dao.EventDAO;
 import org.example.springbootproject1.dto.request.EventRequestDTO;
 import org.example.springbootproject1.dto.response.ApiResponse;
 import org.example.springbootproject1.dto.response.EventResponseDTO;
-import org.example.springbootproject1.dto.response.FacultyResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
