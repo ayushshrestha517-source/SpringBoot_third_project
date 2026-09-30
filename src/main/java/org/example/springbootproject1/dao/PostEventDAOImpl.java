@@ -52,8 +52,7 @@ public class PostEventDAOImpl implements PostEventDAO {
         postEvent.setImageUrl(dto.imageUrl());
 
         postEvent.setUpdatedDate(LocalDate.now());
-        return postEventMapper.toResponseDTO(postEventRepository.save(postEvent)
-        );
+        return postEventMapper.toResponseDTO(postEventRepository.save(postEvent));
     }
 
     @Override
