@@ -50,4 +50,5 @@ public class AssignmentSubmissionController {
     public ResponseEntity<ApiResponse<AssignmentSubmissionResponseDTO>> updateSubmission(@PathVariable Long id, @Valid @RequestBody AssignmentSubmissionUpdateRequestDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(assignmentSubmissionDAO.updateSubmission(id, dto), "Assignment submission successfully updated"));
     }
+
 }
